@@ -9,7 +9,8 @@ const app = express();
 app.use(express.static("public"));
 app.use(express.json());
 
-const uploadsFolder = path.join(__dirname, "..", "public", "uploads");
+// Використовуємо тимчасову директорію /tmp для зберігання файлів
+const uploadsFolder = path.join("/tmp", "uploads");
 
 // Створюємо директорію, якщо її немає
 if (!fs.existsSync(uploadsFolder)) {
