@@ -34,7 +34,7 @@ const generateTimestamp = () => {
   return now.toISOString().replace(/[-:]/g, "").split(".")[0];
 };
 
-app.post("/generate-audio", async (req, res) => {
+app.post("/api/generate-audio", async (req, res) => {
   const { text } = req.body;
   const timestamp = generateTimestamp();
   const audioFilePath = path.join(
@@ -72,7 +72,7 @@ app.post("/generate-audio", async (req, res) => {
 });
 
 // 🔵 Генерація відео через Adobe Express
-app.post("/generate-video", async (req, res) => {
+app.post("/api/generate-video", async (req, res) => {
   try {
     const { audioUrl } = req.body;
     console.log("audioUrl :", audioUrl);
@@ -102,7 +102,7 @@ app.post("/generate-video", async (req, res) => {
 });
 
 // 🟡 Додавання тексту на відео через Canva
-app.post("/add-title", async (req, res) => {
+app.post("/api/add-title", async (req, res) => {
   try {
     const { videoUrl, title } = req.body;
     const response = await axios.post(

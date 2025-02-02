@@ -3,7 +3,7 @@ document
   .addEventListener("click", async () => {
     document.getElementById("status").innerText = "Generating audio...";
     const text = document.getElementById("text").value;
-    const response = await fetch("/generate-audio", {
+    const response = await fetch("/api/generate-audio", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text }),
@@ -20,7 +20,7 @@ document
   .addEventListener("click", async () => {
     document.getElementById("status").innerText = "Generating video...";
     const audioUrl = document.getElementById("audio").src;
-    const response = await fetch("/generate-video", {
+    const response = await fetch("/api/generate-video", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ audioUrl }),
@@ -38,7 +38,7 @@ document
 document.getElementById("add-title").addEventListener("click", async () => {
   const title = document.getElementById("title-input").value;
   const videoUrl = document.getElementById("video-player").src;
-  const response = await fetch("/add-title", {
+  const response = await fetch("/api/add-title", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ videoUrl, title }),
