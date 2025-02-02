@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Video Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+
+        textarea {
+            width: 80%;
+            height: 100px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        video {
+            width: 80%;
+            margin-top: 20px;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>🎥 AI Video Generator</h1>
+
+    <textarea id="text" placeholder="Enter text for speech..."></textarea>
+    <br>
+    <button id="generate-audio">🎤 Generate Audio</button>
+    <button id="generate-video">🎬 Generate Video</button>
+
+    <h2 id="status"></h2>
+
+    <audio controls id="audio" src=""></audio>
+    <br>
+    <video id="video" controls></video>
+    <br>
+    <button id="downloadBtn" style="display:none;" onclick="downloadVideo()">⬇️ Download Video</button>
+
+    <h3>Share on:</h3>
+    <button onclick="shareTo('youtube')">📺 YouTube</button>
+    <button onclick="shareTo('instagram')">📸 Instagram</button>
+    <button onclick="shareTo('tiktok')">🎵 TikTok</button>
+    <button onclick="shareTo('shorts')">🎬 YouTube Shorts</button>
+
+    <script defer src="script.js"></script>
+
+</body>
+
+</html>
