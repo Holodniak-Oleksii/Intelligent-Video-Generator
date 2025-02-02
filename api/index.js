@@ -6,10 +6,12 @@ const path = require("path");
 const multer = require("multer");
 
 const app = express();
+app.use(express.static("public"));
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "../public")));
 
-const uploadsFolder = path.join(__dirname, "../public/uploads");
+const uploadsFolder = path.join(__dirname, "..", "public", "uploads");
+
+// Створюємо директорію, якщо її немає
 if (!fs.existsSync(uploadsFolder)) {
   fs.mkdirSync(uploadsFolder, { recursive: true });
 }
@@ -23,17 +25,23 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-const generateTimestamp = () => {
-  return new Date().toISOString().replace(/[-:]/g, "").split(".")[0];
-};
+app.get("/", (req, res) => {
+  res.send("Сервер працює! 🚀");
+});
 
-// 🔹 Генерація аудіо через ElevenLabs
+// ✅ Генерація аудіо через ElevenLabs
 app.post("/api/generate-audio", async (req, res) => {
-  const { text } = req.body;
-  const timestamp = generateTimestamp();
-  const audioFilePath = path.join(uploadsFolder, `audio_${timestamp}.mp3`);
-
   try {
+    const { text } = req.body;
+    if (!text) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Текст відсутній" });
+    }
+
+    const timestamp = Date.now();
+    const audioFilePath = path.join(uploadsFolder, `audio_${timestamp}.mp3`);
+
     const response = await axios.post(
       `https://api.elevenlabs.io/v1/text-to-speech/${process.env.VOICE_ID}`,
       { text },
@@ -45,74 +53,29 @@ app.post("/api/generate-audio", async (req, res) => {
         responseType: "stream",
       }
     );
-    console.log("response :", response);
 
     response.data.pipe(fs.createWriteStream(audioFilePath));
     response.data.on("end", () => {
       res.json({ success: true, audioUrl: `/uploads/audio_${timestamp}.mp3` });
     });
   } catch (error) {
-    console.log("error :", error);
-    console.error("Error generating audio:");
+    console.error(
+      "Помилка генерації аудіо:",
+      error.response?.data || error.message
+    );
     res
       .status(500)
-      .json({ success: false, message: "Failed to generate audio" });
+      .json({ success: false, message: "Помилка генерації аудіо" });
   }
 });
 
-// 🔹 Генерація відео через Adobe Express
-app.post("/api/generate-video", async (req, res) => {
-  try {
-    const { audioUrl } = req.body;
-    const response = await axios.post(
-      "https://new.express.adobe.com/api/video/generate",
-      { audioUrl },
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.ADOBE_EXPRESS_API_KEY}`,
-        },
-      }
-    );
+// ✅ Запуск сервера тільки локально
+if (process.env.NODE_ENV !== "production") {
+  const PORT = 3000;
+  app.listen(PORT, () =>
+    console.log(`Локальний сервер запущено на http://localhost:${PORT}`)
+  );
+}
 
-    const videoPath = path.join(uploadsFolder, `video-${Date.now()}.mp4`);
-    fs.writeFileSync(videoPath, response.data);
-
-    res.json({
-      success: true,
-      videoUrl: `/uploads/${path.basename(videoPath)}`,
-    });
-  } catch (error) {
-    console.error("Error generating video:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Failed to generate video" });
-  }
-});
-
-// 🔹 Додавання тексту на відео через Canva
-app.post("/api/add-title", async (req, res) => {
-  try {
-    const { videoUrl, title } = req.body;
-    const response = await axios.post(
-      "https://api.canva.com/v1/video/add-text",
-      { videoUrl, title },
-      { headers: { Authorization: `Bearer ${process.env.CANVA_API_KEY}` } }
-    );
-
-    const finalVideoPath = path.join(
-      uploadsFolder,
-      `fullset-${Date.now()}.mp4`
-    );
-    fs.writeFileSync(finalVideoPath, response.data);
-
-    res.json({
-      success: true,
-      finalVideoUrl: `/uploads/${path.basename(finalVideoPath)}`,
-    });
-  } catch (error) {
-    console.error("Error adding title:", error);
-    res.status(500).json({ success: false, message: "Failed to add title" });
-  }
-});
-
+// Експортуємо для Vercel
 module.exports = app;
