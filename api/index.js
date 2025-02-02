@@ -9,10 +9,8 @@ const app = express();
 app.use(express.static("public"));
 app.use(express.json());
 
-// Використовуємо тимчасову директорію /tmp для зберігання файлів
 const uploadsFolder = path.join("/tmp", "uploads");
 
-// Створюємо директорію, якщо її немає
 if (!fs.existsSync(uploadsFolder)) {
   fs.mkdirSync(uploadsFolder, { recursive: true });
 }
@@ -56,8 +54,12 @@ app.post("/api/generate-audio", async (req, res) => {
     );
 
     response.data.pipe(fs.createWriteStream(audioFilePath));
+    const audioUrl = `${req.protocol}://${req.get(
+      "host"
+    )}/uploads/audio_${timestamp}.mp3`;
+
     response.data.on("end", () => {
-      res.json({ success: true, audioUrl: `/uploads/audio_${timestamp}.mp3` });
+      res.json({ success: true, audioUrl });
     });
   } catch (error) {
     console.error(
