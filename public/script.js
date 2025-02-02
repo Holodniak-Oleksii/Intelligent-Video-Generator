@@ -8,6 +8,7 @@ document
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text }),
     });
+    console.log("response :", response);
     const data = await response.json();
     if (data.success) {
       document.getElementById("status").innerText = "✅ Audio generated!";
